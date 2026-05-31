@@ -111,7 +111,7 @@ private:
     // Scalings raw → unità fisiche (da spec OMRON D7S + derivazione empirica)
     static constexpr double SCALE_SI           = 0.01;    // cm/s per LSB (tutti i reg SI)
     static constexpr double SCALE_PGA_MS2      = 0.001;   // m/s² per LSB (latest, reg 0x300X)
-    static constexpr double SCALE_PGA_INST_MS2 = 0.01;    // m/s² per LSB (instantaneous, reg 0x2002)
+    static constexpr double SCALE_PGA_INST_MS2 = 0.001;   // m/s² per LSB (instantaneous, reg 0x2002)
     static constexpr double G                  = 9.80665;  // m/s² per g
     static constexpr double SCALE_TEMP         = 0.1;     // °C per LSB (signed)
 
