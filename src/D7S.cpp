@@ -90,8 +90,9 @@ bool D7S::writeAddr(uint16_t reg) {
     _wire->beginTransmission(ADDRESS);
     _wire->write(static_cast<uint8_t>(reg >> 8));
     _wire->write(static_cast<uint8_t>(reg & 0xFF));
-    // false = repeated start (no STOP): mantiene il bus per la lettura successiva
-    uint8_t err = _wire->endTransmission(false);
+    // true = STOP + nuovo START prima del requestFrom: necessario su ESP32 Arduino 3.x
+    // dove endTransmission(false) + requestFrom() genera ESP_ERR_INVALID_STATE.
+    uint8_t err = _wire->endTransmission(true);
     if (err != 0) {
         Serial.print("[D7S] I2C error ");
         Serial.print(err);
