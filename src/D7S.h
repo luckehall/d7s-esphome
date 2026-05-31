@@ -66,7 +66,7 @@ public:
     // index 0 = più recente, 4 = più vecchia.
     double getLatestSI(uint8_t index);
 
-    // PGA delle ultime misurazioni, in m/s².
+    // PGA delle ultime misurazioni, in g.
     double getLatestPGA(uint8_t index);
 
     // Temperatura interna al momento della misurazione, in °C.
@@ -75,7 +75,7 @@ public:
     // Valori istantanei durante il terremoto (aggiornati ogni 100 ms dal D7S).
     double getInstantaneousSI();
 
-    // PGA istantaneo in m/s² (registro 0x2002, 1 LSB = 0.01 m/s²).
+    // PGA istantaneo in g (registro 0x2002, 1 LSB = 0.01 m/s²).
     double getInstantaneousPGA();
 
 private:
@@ -108,11 +108,12 @@ private:
     static constexpr uint8_t  ADDRESS = 0x55;
     static constexpr uint32_t I2C_TIMEOUT_MS = 50;
 
-    // Scalings (verifica con datasheet OMRON D7S sezione "Register Map")
-    static constexpr double SCALE_SI   = 0.001;   // cm/s per LSB
-    static constexpr double SCALE_PGA  = 0.001;   // m/s² per LSB (latest)
-    static constexpr double SCALE_PGA_INST = 0.01; // m/s² per LSB (0x2002)
-    static constexpr double SCALE_TEMP = 0.1;     // °C per LSB (signed)
+    // Scalings raw → unità fisiche (da spec OMRON D7S + derivazione empirica)
+    static constexpr double SCALE_SI           = 0.01;    // cm/s per LSB (tutti i reg SI)
+    static constexpr double SCALE_PGA_MS2      = 0.001;   // m/s² per LSB (latest, reg 0x300X)
+    static constexpr double SCALE_PGA_INST_MS2 = 0.01;    // m/s² per LSB (instantaneous, reg 0x2002)
+    static constexpr double G                  = 9.80665;  // m/s² per g
+    static constexpr double SCALE_TEMP         = 0.1;     // °C per LSB (signed)
 
     TwoWire* _wire;
     uint8_t  _eventCache;

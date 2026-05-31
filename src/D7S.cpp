@@ -66,7 +66,7 @@ double D7S::getLatestSI(uint8_t index) {
 
 double D7S::getLatestPGA(uint8_t index) {
     if (index > 4) return 0.0;
-    return read16bit(REG_LATEST_BASE + index * 0x10 + OFF_PGA) * SCALE_PGA;
+    return read16bit(REG_LATEST_BASE + index * 0x10 + OFF_PGA) * SCALE_PGA_MS2 / G;
 }
 
 double D7S::getLatestTemperature(uint8_t index) {
@@ -79,7 +79,7 @@ double D7S::getInstantaneousSI() {
 }
 
 double D7S::getInstantaneousPGA() {
-    return read16bit(REG_INST_PGA) * SCALE_PGA_INST;
+    return read16bit(REG_INST_PGA) * SCALE_PGA_INST_MS2 / G;
 }
 
 // ---------------------------------------------------------------------------
