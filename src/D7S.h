@@ -95,10 +95,10 @@ private:
     static constexpr uint8_t  OFF_SI   = 0x08;
     static constexpr uint8_t  OFF_PGA  = 0x0A;
 
-    // Comandi MODE (scritti in REG_MODE)
-    static constexpr uint8_t CMD_INIT     = 0x01;
-    static constexpr uint8_t CMD_OFFSET   = 0x02;
-    static constexpr uint8_t CMD_SELFTEST = 0x04;
+    // Comandi MODE (scritti in REG_MODE): il byte corrisponde al valore di stato target
+    static constexpr uint8_t CMD_INIT     = 0x02;  // → INITIAL_INSTALLATION (stato 0x02)
+    static constexpr uint8_t CMD_OFFSET   = 0x03;  // → OFFSET_ACQUISITION   (stato 0x03)
+    static constexpr uint8_t CMD_SELFTEST = 0x04;  // → SELFTEST_MODE        (stato 0x04)
 
     // Comandi CLEAR (scritti in REG_CLEAR)
     static constexpr uint8_t CLEAR_LATEST = 0x01;
