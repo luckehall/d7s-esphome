@@ -4,8 +4,16 @@ D7S::D7S() : _wire(nullptr), _eventCache(0) {}
 
 bool D7S::begin(TwoWire& wire) {
     _wire = &wire;
+    // Su ESP32 Arduino 3.x (ESP-IDF 5.x) endTransmission() restituisce 0 anche quando
+    // il driver è in INVALID_STATE. available() è l'unico indicatore affidabile.
     _wire->beginTransmission(ADDRESS);
-    return _wire->endTransmission() == 0;
+    _wire->write(static_cast<uint8_t>(REG_STATE >> 8));
+    _wire->write(static_cast<uint8_t>(REG_STATE & 0xFF));
+    _wire->endTransmission(true);
+    _wire->requestFrom(ADDRESS, (uint8_t)1);
+    if (!_wire->available()) return false;
+    _wire->read();
+    return true;
 }
 
 void D7S::initialize() {
