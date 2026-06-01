@@ -4,8 +4,10 @@ D7S::D7S() : _wire(nullptr), _eventCache(0) {}
 
 bool D7S::begin(TwoWire& wire) {
     _wire = &wire;
-    // Su ESP32 Arduino 3.x (ESP-IDF 5.x) endTransmission() restituisce 0 anche quando
-    // il driver è in INVALID_STATE. available() è l'unico indicatore affidabile.
+
+    // Verifica READ: legge STATE register.
+    // Su ESP32 Arduino 3.x endTransmission() restituisce 0 anche in INVALID_STATE;
+    // available() è l'unico indicatore affidabile della riuscita della lettura.
     _wire->beginTransmission(ADDRESS);
     _wire->write(static_cast<uint8_t>(REG_STATE >> 8));
     _wire->write(static_cast<uint8_t>(REG_STATE & 0xFF));
@@ -13,7 +15,26 @@ bool D7S::begin(TwoWire& wire) {
     _wire->requestFrom(ADDRESS, (uint8_t)1);
     if (!_wire->available()) return false;
     _wire->read();
-    return true;
+
+    // Verifica WRITE: scrive AXIS_AUTO_SWITCH (0x03) nel registro CTRL e rilegge.
+    // Default D7S power-on CTRL = 0x00 (YZ axis), quindi 0x03 è un valore distinguibile.
+    // Le WRITE diventano stabili ~450ms dopo che le READ funzionano: senza questa verifica
+    // begin() dichiara successo ma setAxis()/setThreshold()/initialize() falliscono
+    // silenziosamente, lasciando il sensore con threshold e asse a default.
+    _wire->beginTransmission(ADDRESS);
+    _wire->write(static_cast<uint8_t>(REG_CTRL >> 8));
+    _wire->write(static_cast<uint8_t>(REG_CTRL & 0xFF));
+    _wire->write(0x03);  // AXIS_AUTO_SWITCH
+    _wire->endTransmission(true);
+
+    _wire->beginTransmission(ADDRESS);
+    _wire->write(static_cast<uint8_t>(REG_CTRL >> 8));
+    _wire->write(static_cast<uint8_t>(REG_CTRL & 0xFF));
+    _wire->endTransmission(true);
+    _wire->requestFrom(ADDRESS, (uint8_t)1);
+    if (!_wire->available()) return false;
+    uint8_t ctrl = _wire->read();
+    return (ctrl & 0x07) == 0x03;
 }
 
 void D7S::initialize() {
